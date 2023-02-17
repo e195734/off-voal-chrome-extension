@@ -1,13 +1,15 @@
 {
-  "manifest_version": 3,
+  "manifest_version": 2,
   "name": "OVE",
   "description": "off vocal audio",
   "version": "1.0",
-  "action": {
+  "browser_action": {
     "default_icon": "hello_extensions.png"
   },
   "background": {
-    "service_worker": "background.js"
+    "scripts":[
+      "background.js"
+    ]
   },
   "permissions": ["tabCapture"]
 }

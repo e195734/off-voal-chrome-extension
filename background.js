@@ -5,4 +5,6 @@ const getTabStream = () => {
     console.log(c);
   });
 }
-getTabStream();
+chrome.browserAction.onClicked.addListener(() => {
+  getTabStream();
+});
