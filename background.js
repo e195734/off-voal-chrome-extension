@@ -1,21 +1,34 @@
-
+let power = false;
+let audioCtx;
 
 const getTabStream = () => {
   chrome.tabCapture.capture({ audio: true, video: false }, (c) => {
-    const audioCtx = new AudioContext();
-    const gainNode = audioCtx.createGain();
-    gainNode.gain.value = -1;
-    const channelSplitterNode = audioCtx.createChannelSplitter();
-    const channelMergerNode = audioCtx.createChannelMerger();
+    audioCtx = new AudioContext();
+    const invertNode = audioCtx.createGain();
+    invertNode.gain.value = -1;
+    const channelSplitterNode = audioCtx.createChannelSplitter(2);
+    const channelMergerNode = audioCtx.createChannelMerger(2);
     const mediaStreamSource = audioCtx.createMediaStreamSource(c);
+    const merge = audioCtx.createChannelMerger(1);
 
-    splittedStream = mediaStreamSource.connect(channelSplitterNode);
-    splittedStream.connect(channelMergerNode);
-    //splittedStream.connect(gainNode).connect(channelMergerNode);
+    console.log(mediaStreamSource.numberOfOutputs);
 
-    channelMergerNode.connect(audioCtx.destination);
+    mediaStreamSource.connect(channelSplitterNode);
+    channelSplitterNode.connect(invertNode, 0);
+    invertNode.connect(channelMergerNode, 0, 0);
+    channelSplitterNode.connect(channelMergerNode, 1, 1);
+
+    channelMergerNode.connect(merge);
+    merge.connect(audioCtx.destination);
   });
 }
+
 chrome.browserAction.onClicked.addListener(() => {
-  getTabStream();
+  power = !power;
+  if(power){
+    getTabStream();
+  }
+  else{
+    audioCtx.close();
+  }
 });
